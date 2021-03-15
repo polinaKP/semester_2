@@ -1,9 +1,29 @@
 #include <iostream>
+#include <list>
 
 typedef struct Node {
     int value;
     struct Node *next;
 } Node;
+
+void push_back(Node ** head, int value)
+{
+    if (*head == NULL) {
+        *head = new Node;
+        (*head)->value = value;
+        (*head)->next = NULL;
+        return;
+    }
+
+    Node * p_node = *head;
+    while (p_node->next != NULL) {
+        p_node = p_node->next;
+    }
+    Node * new_node = new Node;
+    p_node->next = new_node;
+    new_node->value = value;
+    new_node->next = NULL;
+}
 
 void push_left(Node ** head, int value)
 {
@@ -138,6 +158,55 @@ void replace_all(Node *head, int old_value, int new_value)
     }
 }
 
+void reverse(Node **head)
+{
+    Node *p_node = *head;
+    int value = 0, index = 0;
+    int first_value = p_node->value;
+    if (p_node != NULL) {
+        while (p_node->next != NULL) {
+            value = p_node->value;
+            push_left(head, value);
+            pop(head, index);
+            p_node = p_node->next;
+            index++;
+        }
+        value = p_node->value;
+        push_left(head, value);
+        pop(head, index);
+        p_node->value = first_value;
+    }
+}
+
+int unique(Node *head)
+{
+    Node *p_node = head;
+    bool flag = true;
+    int count = 1;
+    if (p_node != NULL) {
+        std::list<int> elements{p_node->value};
+        while (p_node->next != NULL) {
+            for (int i: elements)
+                if (p_node->value == i)
+                    flag = false;
+            if (flag) {
+                count++;
+                elements.push_back(p_node->value);
+            }
+            flag = true;
+            p_node = p_node->next;
+        }
+        for (int i: elements)
+                if (p_node->value == i)
+                    flag = false;
+            if (flag) {
+                count++;
+                elements.push_back(p_node->value);
+            }
+    }
+    return count;
+}
+
 int main(int argc, char const *argv[])
 {
     int value,amount;
@@ -147,7 +216,7 @@ int main(int argc, char const *argv[])
     std::cout << "Enter list:" << '\n';
     for (int i = 1; i <= amount; ++i) {
         std::cin >> value;
-        push_left(&list, value);
+        push_back(&list, value);
     }
     print_list(list);
 
@@ -174,7 +243,11 @@ int main(int argc, char const *argv[])
     replace_all(list, old_value, new_value);
     print_list(list);
 
-    //std::cout << "Unique: " << unique(list) << '\n';
+    std::cout << "Unique: " << unique(list) << '\n';
+
+    std::cout << "Reversed ";
+    reverse(&list);
+    print_list(list);
 
     clear_list(&list);
     std::cout << "Clear";
